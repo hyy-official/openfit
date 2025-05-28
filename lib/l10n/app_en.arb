@@ -1,0 +1,13 @@
+{
+  "explore": "Explore",
+  "menuFitness": "Fitness",
+  "menuNutrition": "Nutrition",
+  "menuWeight": "Weight Management",
+  "menuChat": "Start Chat",
+  "startConsultation": "Start AI Consultation",
+  "helloUser": "Hello, {userName}!",
+  "todayDate": "Today's Date: {date}",
+  "recentWorkouts": "Recent Workouts",
+  "recentMeals": "Recent Meals",
+  "weightGraph": "Weight Change Graph"
+}
