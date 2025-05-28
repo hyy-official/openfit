@@ -1,45 +1,46 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Flutter/Dart 기본
 .dart_tool/
+.packages
+.pub-cache/
+.buildlog/
 .flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
+.metadata
 
-# Symbolication related
-app.*.symbols
+# 빌드 산출물
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+*.lock
+*.log
 
-# Obfuscation related
-app.*.map.json
+# Android
+android/.gradle/
+android/captures/
+android/.idea/
+*.iml
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# iOS/macOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+macos/Pods/
+macos/.symlinks/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# 테스트 임시 파일
+coverage/
+*.coverage
+*.lcov
+
+# 기타 사용하지 않는 출력물
+pubspec.lock
