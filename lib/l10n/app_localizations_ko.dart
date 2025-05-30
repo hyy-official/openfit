@@ -24,6 +24,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get menuChat => '채팅 시작';
 
   @override
+  String get personal => '내 정보';
+
+  @override
   String get startConsultation => 'AI 상담 시작하기';
 
   @override

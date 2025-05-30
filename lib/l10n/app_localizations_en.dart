@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuChat => 'Start Chat';
 
   @override
+  String get personal => 'My body';
+
+  @override
   String get startConsultation => 'Start AI Consultation';
 
   @override

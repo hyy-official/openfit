@@ -4,6 +4,7 @@
   "menuNutrition": "Nutrition",
   "menuWeight": "Weight Management",
   "menuChat": "Start Chat",
+  "personal": "My body",
   "startConsultation": "Start AI Consultation",
   "helloUser": "Hello, {userName}!",
   "todayDate": "Today's Date: {date}",

@@ -3,13 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:openfit/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:openfit/screens/chat_screen.dart';
+import 'package:openfit/screens/user_settings_sheet.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final userName = "홍윤영";//향후 수정
+    final userName = "홍윤영"; // 향후 수정
     final todayDate = DateFormat.yMMMMd(Localizations.localeOf(context).toString()).format(DateTime.now());
 
     return Scaffold(
@@ -29,13 +31,45 @@ class HomeScreen extends StatelessWidget {
                 menuItem(t.menuFitness),
                 menuItem(t.menuNutrition),
                 menuItem(t.menuWeight),
-                menuItem(t.menuChat),
+                menuItem(t.menuChat, onTap: (){
+                    final sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            ChatScreen(sessionId: sessionId),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          final offsetAnimation = Tween<Offset>(
+                            begin: const Offset(1.0, 0.0), // 오른쪽에서 슬라이드 인
+                            end: Offset.zero,
+                          ).animate(animation);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                    }
+                  ),
+                menuItem(t.personal, onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => Dialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: const UserSettingsSheet(), // ← 여기 기존 폼 위젯 사용
+                    ),
+                  );
+                }),
+
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () {
+                    final sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
                     Navigator.of(context).push(
                       PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => const ChatScreen(),
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            ChatScreen(sessionId: sessionId),
                         transitionsBuilder: (context, animation, secondaryAnimation, child) {
                           final offsetAnimation = Tween<Offset>(
                             begin: const Offset(1.0, 0.0), // 오른쪽에서 슬라이드 인
@@ -50,9 +84,9 @@ class HomeScreen extends StatelessWidget {
                       ),
                     );
                   },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-                child: Text(t.startConsultation),
-              )
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                  child: Text(t.startConsultation),
+                ),
               ],
             ),
           ),
@@ -86,13 +120,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget menuItem(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Text(title, style: const TextStyle(fontSize: 18)),
+  Widget menuItem(String title, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Text(title, style: const TextStyle(fontSize: 18)),
+      ),
     );
   }
-
+  
   Widget dashboardCard(String title, String imagePath) {
     return Expanded(
       child: Column(

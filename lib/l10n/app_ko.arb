@@ -5,6 +5,7 @@
   "menuNutrition": "영양",
   "menuWeight": "체중 관리",
   "menuChat": "채팅 시작",
+  "personal": "내 정보",
   "startConsultation": "AI 상담 시작하기",
   "helloUser": "{userName}님, 안녕하세요!",
   "todayDate": "오늘 날짜: {date}",

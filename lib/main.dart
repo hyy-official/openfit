@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-import 'package:openfit/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+import 'package:openfit/l10n/app_localizations.dart';
+import 'package:openfit/screens/home_screen.dart';
+
+import 'package:openfit/models/chat_message.dart';
+import 'package:openfit/models/chat_session_meta.dart';
+import 'package:openfit/models/user_profile.dart';
+
+import 'package:openfit/services/chat_session.dart';
+import 'package:openfit/services/session_list_provider.dart';
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  
+  await Hive.initFlutter();
+  Hive.registerAdapter(ChatMessageAdapter());
+  Hive.registerAdapter(ChatSessionMetaAdapter());
+  Hive.registerAdapter(UserProfileAdapter());
+  await Hive.openBox<ChatSessionMeta>('sessionMeta'); 
+
   runApp(const MyApp());
 }
 
@@ -12,19 +32,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+    return MultiProvider( 
+      providers: [
+        ChangeNotifierProvider(create: (_) => ChatSession('default')..loadMessages()),
+        ChangeNotifierProvider(create: (_) => SessionListProvider()..loadSessions()),
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ko'),
-      ],
-      locale: const Locale('ko'), // 또는 Locale.systemLocale
-      home: const HomeScreen(),
+      child: MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'),
+          Locale('ko'),
+        ],
+        locale: const Locale('ko'),
+        home: const HomeScreen(),
+      ),
     );
   }
 }
