@@ -21,6 +21,9 @@ class UserProfile extends HiveObject {
 
   @HiveField(5)
   String goal;
+  
+  @HiveField(6)
+  String? gptKey;
 
   UserProfile({
     required this.name,
@@ -29,6 +32,7 @@ class UserProfile extends HiveObject {
     required this.bodyFat,
     required this.dietHabit,
     required this.goal,
+    this.gptKey,
   });
 
   String toPrompt() => '''

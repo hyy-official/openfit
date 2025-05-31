@@ -23,13 +23,14 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       bodyFat: fields[3] as double,
       dietHabit: fields[4] as String,
       goal: fields[5] as String,
+      gptKey: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserProfile obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(4)
       ..write(obj.dietHabit)
       ..writeByte(5)
-      ..write(obj.goal);
+      ..write(obj.goal)
+      ..writeByte(6)
+      ..write(obj.gptKey);
   }
 
   @override

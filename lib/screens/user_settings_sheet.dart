@@ -15,6 +15,7 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
   final _bodyFatController = TextEditingController();
   final _goalController = TextEditingController();
   final _dietController = TextEditingController();
+  final _keyController = TextEditingController();
   String _gender = '남성';
 
   @override
@@ -32,6 +33,7 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
       _bodyFatController.text = profile.bodyFat.toString();
       _goalController.text = profile.goal;
       _dietController.text = profile.dietHabit;
+      _keyController.text = profile.gptKey ?? '';
       _gender = profile.gender;
       setState(() {}); // 추가: 변경 반영
     }
@@ -45,6 +47,7 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
       bodyFat: double.tryParse(_bodyFatController.text) ?? 0,
       goal: _goalController.text,
       dietHabit: _dietController.text,
+      gptKey: _keyController.text ?? '',
     );
     final box = await Hive.openBox<UserProfile>('userProfileBox');
     await box.put('main', profile);
@@ -83,6 +86,8 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
               TextField(controller: _dietController, decoration: const InputDecoration(labelText: '식습관')),
               const SizedBox(height: 10),
               TextField(controller: _goalController, decoration: const InputDecoration(labelText: '건강 목표')),
+              const SizedBox(height: 20),
+              TextField(controller: _keyController, decoration: const InputDecoration(labelText: 'API_KEY')),
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
