@@ -2,14 +2,13 @@ import 'package:hive/hive.dart';
 import 'package:openfit/models/user_profile.dart';
 import 'package:intl/intl.dart';
 
-Future<String> loadUserProfileAsPrompt() async {
+Future<String> loadSummariesAsPrompt() async {
   final now = DateTime.now();
   final box = await Hive.openBox<UserProfile>('userProfileBox');
   final profile = box.get('main');
   final formattedTime = '${now.year}년 ${now.month}월 ${now.day}일 ${now.hour}시 ${now.minute}분';
 
   if (profile == null) return '';
-
   return '''
 당신은 개인 건강 코치입니다.  
 사용자와 대화할 때는 아래 원칙을 반드시 따르세요:

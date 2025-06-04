@@ -6,6 +6,43 @@ class GPTClient {
   final String apiKey;
 
   GPTClient(this.apiKey);
+  Future<String> sendMessageWithPrompt(String prompt) async {
+    final url = Uri.parse('https://api.openai.com/v1/responses');
+    final inputMessages = [
+      {'role': 'system', 'content': prompt},
+    ];
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'model': 'o4-mini',
+        'stream': false,
+        'input': inputMessages,
+        'reasoning': {'effort': 'medium'},
+        'max_output_tokens': 2048,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final outputList = data['output'] as List?;
+      if (outputList != null) {
+        final message = outputList.firstWhere(
+          (e) => e['type'] == 'message',
+          orElse: () => null,
+        );
+        return message?['content']?[0]?['text'] ?? '[응답 없음]';
+      } else {
+        return '[출력이 비어 있음]';
+      }
+    } else {
+      throw Exception('GPT 요청 실패: ${response.statusCode}\n${response.body}');
+    }
+  }
 
   Future<String> sendMessageWithHistory(List<Map<String, String>> history, String systemPrompt) async {
     final url = Uri.parse('https://api.openai.com/v1/responses');

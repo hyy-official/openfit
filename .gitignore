@@ -22,7 +22,7 @@ android/.idea/
 
 # iOS/macOS
 ios/Pods/
-ios/.symlinks/
+ios/.s  ymlinks/
 ios/Flutter/ephemeral/
 macos/Flutter/ephemeral/
 macos/Pods/

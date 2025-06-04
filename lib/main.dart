@@ -9,6 +9,7 @@ import 'package:openfit/screens/home_screen.dart';
 import 'package:openfit/models/chat_message.dart';
 import 'package:openfit/models/chat_session_meta.dart';
 import 'package:openfit/models/user_profile.dart';
+import 'package:openfit/models/daily_plan.dart';
 
 import 'package:openfit/services/chat_session.dart';
 import 'package:openfit/services/session_list_provider.dart';
@@ -22,6 +23,8 @@ void main() async {
   Hive.registerAdapter(ChatMessageAdapter());
   Hive.registerAdapter(ChatSessionMetaAdapter());
   Hive.registerAdapter(UserProfileAdapter());
+  Hive.registerAdapter(DailyPlanAdapter());
+  
   await Hive.openBox<ChatSessionMeta>('sessionMeta'); 
 
   runApp(const MyApp());
