@@ -25,19 +25,26 @@ class GPTContextAdapter extends TypeAdapter<GPTContext> {
       targetMuscleMass: fields[5] as double?,
       currentMuscleMass: fields[6] as double?,
       sleepHabits: fields[7] as String?,
-      medications: (fields[8] as List?)?.cast<String>(),
-      availableIngredients: (fields[9] as List?)?.cast<String>(),
       activityLevel: fields[10] as String?,
       availableWorkoutTime: fields[11] as String?,
       dietaryRestrictions: fields[12] as String?,
       historySummary: fields[13] as String?,
-    );
+      workoutPreferences: (fields[17] as Map?)?.cast<String, String>(),
+      fitnessLevel: fields[18] as String?,
+      weeklyWorkoutFrequency: fields[19] as String?,
+      currentBodyType: fields[20] as String?,
+    )
+      ..medicationsStr = fields[8] as String?
+      ..availableIngredientsStr = fields[9] as String?
+      ..fitnessGoalsStr = fields[14] as String?
+      ..desiredBodyShapesStr = fields[15] as String?
+      ..complexAreasStr = fields[16] as String?;
   }
 
   @override
   void write(BinaryWriter writer, GPTContext obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
@@ -55,9 +62,9 @@ class GPTContextAdapter extends TypeAdapter<GPTContext> {
       ..writeByte(7)
       ..write(obj.sleepHabits)
       ..writeByte(8)
-      ..write(obj.medications)
+      ..write(obj.medicationsStr)
       ..writeByte(9)
-      ..write(obj.availableIngredients)
+      ..write(obj.availableIngredientsStr)
       ..writeByte(10)
       ..write(obj.activityLevel)
       ..writeByte(11)
@@ -65,7 +72,21 @@ class GPTContextAdapter extends TypeAdapter<GPTContext> {
       ..writeByte(12)
       ..write(obj.dietaryRestrictions)
       ..writeByte(13)
-      ..write(obj.historySummary);
+      ..write(obj.historySummary)
+      ..writeByte(14)
+      ..write(obj.fitnessGoalsStr)
+      ..writeByte(15)
+      ..write(obj.desiredBodyShapesStr)
+      ..writeByte(16)
+      ..write(obj.complexAreasStr)
+      ..writeByte(17)
+      ..write(obj.workoutPreferences)
+      ..writeByte(18)
+      ..write(obj.fitnessLevel)
+      ..writeByte(19)
+      ..write(obj.weeklyWorkoutFrequency)
+      ..writeByte(20)
+      ..write(obj.currentBodyType);
   }
 
   @override

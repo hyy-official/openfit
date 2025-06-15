@@ -11,6 +11,7 @@ import 'package:hive/hive.dart';
 import 'package:openfit/services/prompt_layer_service.dart';
 import 'package:openfit/services/summary_loader.dart';
 import 'package:openfit/services/chat_service.dart';
+import 'package:openfit/services/profile_service.dart';
 import 'dart:convert';
 
 class ChatScreen extends StatefulWidget {
@@ -30,18 +31,32 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   List<String> sessionIds = [];
   bool _isProcessing = false;
-  final _summaryLoader = SummaryLoader();
+  final _summaryLoader = SummaryLoader(); // 🔄 점진적 제거 예정
+  final _profileService = ProfileService(); // 🔥 새로운 ProfileService
   final _promptLayer = PromptLayerService();
   final _chatService = ChatService();
   String _cumulativeHistorySummary = ''; // 누적 히스토리 요약
 
   @override
   void dispose() {
-    //_runAnalysis(); // dispose 시점에서의 분석 실행은 일반적으로 권장되지 않음
+    // 🔥 채팅 종료 시 동기화 실행
+    _performChatEndSync();
     _controller.dispose();
     _scrollController.dispose();
     session.dispose();
     super.dispose();
+  }
+
+  /// 채팅 종료 시 GPTContext → UserProfile 동기화
+  Future<void> _performChatEndSync() async {
+    try {
+      print('🔄 채팅 종료 - ProfileService 동기화 시작');
+      await _profileService.syncContextToUser();
+      print('✅ 채팅 종료 동기화 완료');
+    } catch (e) {
+      print('⚠️ 채팅 종료 동기화 실패 (pending으로 저장됨): $e');
+      // 실패해도 앱 종료를 막지 않음
+    }
   }
 
   @override
@@ -75,10 +90,14 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
   Future<void> _loadProfile() async {
+    // 🔥 ProfileService 초기화 및 로드
+    await _profileService.initialize();
+    
+    // 🔄 기존 SummaryLoader도 병행 사용 (점진적 전환)
     await _summaryLoader.loadData();
     
     // GPTContext에서 히스토리 요약 로드
-    final gptContext = _summaryLoader.gptContext;
+    final gptContext = _profileService.gptContext ?? _summaryLoader.gptContext;
     if (gptContext?.historySummary != null && gptContext!.historySummary!.trim().isNotEmpty) {
       _cumulativeHistorySummary = gptContext.historySummary!;
       print('📚 GPTContext에서 히스토리 요약 로드: $_cumulativeHistorySummary');
@@ -171,13 +190,8 @@ class _ChatScreenState extends State<ChatScreen> {
           return;
         }
 
-        // 기존 요약과 새 요약을 결합
-        String updatedSummary;
-        if (gptContext.historySummary == null || gptContext.historySummary!.trim().isEmpty) {
-          updatedSummary = newSummary;
-        } else {
-          updatedSummary = '${gptContext.historySummary}\n$newSummary';
-        }
+        // 새로운 요약으로 대체 (누적하지 않음)
+        String updatedSummary = newSummary;
 
         // GPTContext 업데이트
         gptContext.historySummary = updatedSummary;
@@ -199,9 +213,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _updateUserProfile(Map<String, dynamic> updates) async {
     try {
+      // 🔥 ProfileService를 통해 GPTContext 업데이트
+      await _profileService.updateContext(updates);
+      
+      print('✅ ProfileService를 통한 GPTContext 업데이트 완료');
+      
+      // 🔄 기존 로직도 병행 (점진적 전환)
       final gptContext = _summaryLoader.gptContext;
       if (gptContext == null) {
-        print('❌ GPTContext가 null입니다.');
+        print('⚠️ SummaryLoader GPTContext가 null입니다.');
         return;
       }
 
@@ -228,6 +248,11 @@ class _ChatScreenState extends State<ChatScreen> {
         gptContext.targetMuscleMass = updates['targetMuscleMass'] as double;
         hasUpdates = true;
         updateMessage += '목표 근육량: ${gptContext.targetMuscleMass}kg\n';
+      }
+      if (updates.containsKey('currentMuscleMass')) {
+        gptContext.currentMuscleMass = updates['currentMuscleMass'] as double;
+        hasUpdates = true;
+        updateMessage += '현재 근육량: ${gptContext.currentMuscleMass}kg\n';
       }
       if (updates.containsKey('sleepHabits')) {
         gptContext.sleepHabits = updates['sleepHabits'] as String;
@@ -258,6 +283,41 @@ class _ChatScreenState extends State<ChatScreen> {
         gptContext.dietaryRestrictions = updates['dietaryRestrictions'] as String;
         hasUpdates = true;
         updateMessage += '식이 제한: ${gptContext.dietaryRestrictions}\n';
+      }
+      if (updates.containsKey('fitnessGoals')) {
+        gptContext.fitnessGoals = List<String>.from(updates['fitnessGoals']);
+        hasUpdates = true;
+        updateMessage += '운동 목표: ${gptContext.fitnessGoals?.join(', ')}\n';
+      }
+      if (updates.containsKey('desiredBodyShapes')) {
+        gptContext.desiredBodyShapes = List<String>.from(updates['desiredBodyShapes']);
+        hasUpdates = true;
+        updateMessage += '원하는 몸매: ${gptContext.desiredBodyShapes?.join(', ')}\n';
+      }
+      if (updates.containsKey('complexAreas')) {
+        gptContext.complexAreas = List<String>.from(updates['complexAreas']);
+        hasUpdates = true;
+        updateMessage += '컴플렉스 부위: ${gptContext.complexAreas?.join(', ')}\n';
+      }
+      if (updates.containsKey('workoutPreferences')) {
+        gptContext.workoutPreferences = Map<String, String>.from(updates['workoutPreferences']);
+        hasUpdates = true;
+        updateMessage += '운동 취향이 업데이트되었습니다.\n';
+      }
+      if (updates.containsKey('fitnessLevel')) {
+        gptContext.fitnessLevel = updates['fitnessLevel'] as String;
+        hasUpdates = true;
+        updateMessage += '체력 수준: ${gptContext.fitnessLevel}\n';
+      }
+      if (updates.containsKey('weeklyWorkoutFrequency')) {
+        gptContext.weeklyWorkoutFrequency = updates['weeklyWorkoutFrequency'] as String;
+        hasUpdates = true;
+        updateMessage += '주간 운동 빈도: ${gptContext.weeklyWorkoutFrequency}\n';
+      }
+      if (updates.containsKey('currentBodyType')) {
+        gptContext.currentBodyType = updates['currentBodyType'] as String;
+        hasUpdates = true;
+        updateMessage += '현재 체형: ${gptContext.currentBodyType}\n';
       }
       if (updates.containsKey('historySummary')) {
         gptContext.historySummary = updates['historySummary'] as String;
@@ -368,26 +428,53 @@ class _ChatScreenState extends State<ChatScreen> {
 
       // JSON 응답 파싱 시도
       try {
-        final jsonResponse = json.decode(response);
-        if (jsonResponse is Map<String, dynamic>) {
-          // 프로필 업데이트 처리
-          if (jsonResponse.containsKey('profile_update')) {
-            await _updateUserProfile(jsonResponse['profile_update']);
+        // JSON 부분과 메시지 부분 분리
+        String messageContent = response;
+        
+        // JSON 부분 찾기
+        final jsonStart = response.indexOf('{');
+        final jsonEnd = response.lastIndexOf('}');
+        
+        if (jsonStart != -1 && jsonEnd != -1 && jsonStart < jsonEnd) {
+          try {
+            final jsonStr = response.substring(jsonStart, jsonEnd + 1);
+            print('파싱할 JSON 문자열: $jsonStr');
+            
+            final jsonResponse = json.decode(jsonStr) as Map<String, dynamic>;
+            
+            // 프로필 업데이트 처리
+            if (jsonResponse.containsKey('profile_update')) {
+              print('추출된 프로필 업데이트: ${jsonResponse['profile_update']}');
+              await _updateUserProfile(jsonResponse['profile_update']);
+            }
+            
+            // 히스토리 요약 처리
+            if (jsonResponse.containsKey('history_summary')) {
+              await _updateHistorySummary(jsonResponse['history_summary']);
+            }
+            
+            // 메시지 부분 결정
+            if (jsonResponse.containsKey('message')) {
+              messageContent = jsonResponse['message'] as String;
+            } else {
+              // JSON이 있지만 message 필드가 없는 경우, JSON 앞부분을 메시지로 사용
+              messageContent = response.substring(0, jsonStart).trim();
+              if (messageContent.isEmpty) {
+                messageContent = '정보가 업데이트되었습니다.';
+              }
+            }
+            
+          } catch (e) {
+            print('JSON 파싱 실패: $e');
+            // JSON 파싱 실패 시 전체 응답을 메시지로 사용
+            messageContent = response;
           }
-          
-          // 히스토리 요약 처리
-          if (jsonResponse.containsKey('history_summary')) {
-            await _updateHistorySummary(jsonResponse['history_summary']);
-          }
-          
-          // 메시지 부분만 표시
-          final messageContent = jsonResponse['message'] ?? response;
-          await _simulateTyping(assistantIndex, messageContent);
-        } else {
-          await _simulateTyping(assistantIndex, response);
         }
+        
+        await _simulateTyping(assistantIndex, messageContent);
+        
       } catch (e) {
-        // JSON 파싱 실패 시 전체 응답을 메시지로 처리
+        // 전체 파싱 실패 시 전체 응답을 메시지로 처리
         await _simulateTyping(assistantIndex, response);
       }
 

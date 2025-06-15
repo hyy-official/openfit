@@ -12,38 +12,43 @@ import 'package:openfit/screens/user_settings_sheet.dart';
 import 'package:openfit/services/api_key_service.dart';
 import 'package:openfit/services/prompt_layer_service.dart';
 import 'package:openfit/services/summary_loader.dart';
+import 'package:openfit/services/profile_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // .env 파일 로드
-  await dotenv.load(fileName: ".env");
+  final directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path);
   
-  // Hive 초기화
-  await Hive.initFlutter();
-  
-  // // // 개발용: 모든 박스 삭제 (기존 데이터 완전 초기화)
-  // await Hive.deleteBoxFromDisk('chat_messages');
-  // await Hive.deleteBoxFromDisk('sessionMeta');
-  // await Hive.deleteBoxFromDisk('dailyPlans');
-  // await Hive.deleteBoxFromDisk('userProfileBox');
-  // await Hive.deleteBoxFromDisk('gptContextBox');
-  
-  Hive.registerAdapter(ChatMessageAdapter());
-  Hive.registerAdapter(ChatSessionMetaAdapter());
-  Hive.registerAdapter(DailyPlanAdapter());
+  // Register adapters
   Hive.registerAdapter(UserProfileAdapter());
   Hive.registerAdapter(GPTContextAdapter());
-
-  // 박스 열기
-  await Hive.openBox<ChatMessage>('chat_messages');
-  await Hive.openBox<ChatSessionMeta>('sessionMeta');
-  await Hive.openBox<DailyPlan>('dailyPlans');
+  Hive.registerAdapter(ChatMessageAdapter());
+  Hive.registerAdapter(DailyPlanAdapter());
+  Hive.registerAdapter(ChatSessionMetaAdapter());
+  
+  // 🔥 임시: 기존 데이터 클리어 (구조 변경으로 인한 호환성 문제 해결)
+  try {
+    await Hive.deleteBoxFromDisk('userProfileBox');
+    await Hive.deleteBoxFromDisk('gptContextBox');
+    print('🗑️ 기존 데이터 박스 클리어 완료 - 새로운 구조로 재시작');
+  } catch (e) {
+    print('⚠️ 데이터 박스 클리어 중 오류 (무시해도 됨): $e');
+  }
+  
+  // Open boxes
   await Hive.openBox<UserProfile>('userProfileBox');
   await Hive.openBox<GPTContext>('gptContextBox');
+  await Hive.openBox<ChatMessage>('chatMessages');
+  await Hive.openBox<DailyPlan>('dailyPlanBox');
   await Hive.openBox<ChatSessionMeta>('sessionMeta');
+  await Hive.openBox('pendingSyncBox');
+
+  // .env 파일 로드
+  await dotenv.load(fileName: ".env");
   
   // API 키 서비스 초기화
   await ApiKeyService.initialize();
@@ -51,17 +56,24 @@ void main() async {
   // PromptLayer 서비스 초기화
   await PromptLayerService().initialize();
   
-  runApp(const OpenFitApp());
+  // ProfileService 전역 인스턴스 생성 및 초기화
+  final profileService = ProfileService();
+  await profileService.initialize();
+  
+  runApp(OpenFitApp(profileService: profileService));
 }
 
 class OpenFitApp extends StatelessWidget {
-  const OpenFitApp({super.key});
+  final ProfileService profileService;
+  
+  const OpenFitApp({super.key, required this.profileService});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SummaryLoader()),
+        ChangeNotifierProvider.value(value: profileService), // 🔥 ProfileService 제공
       ],
       child: MaterialApp(
         title: 'OpenFit',

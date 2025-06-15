@@ -35,35 +35,35 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       bodyFatMeasurementMethod: fields[44] as String?,
       muscleMassMeasurementMethod: fields[45] as String?,
       sleepHabits: fields[12] as String?,
-      medications: (fields[13] as List?)?.cast<String>(),
-      availableIngredients: (fields[14] as List?)?.cast<String>(),
       activityLevel: fields[15] as String?,
       availableWorkoutTime: fields[16] as String?,
       dietaryRestrictions: fields[17] as String?,
       dietaryType: fields[18] as String?,
-      fitnessGoals: (fields[19] as List?)?.cast<String>(),
-      desiredBodyShapes: (fields[20] as List?)?.cast<String>(),
       currentBodyType: fields[21] as String?,
-      complexAreas: (fields[22] as List?)?.cast<String>(),
       hasSpecificGoalEvent: fields[23] as bool?,
       specificGoalEventDetails: fields[24] as String?,
       fitnessLevel: fields[25] as String?,
       weeklyWorkoutFrequency: fields[26] as String?,
       desiredWorkoutDuration: fields[27] as String?,
       workoutPreferences: (fields[28] as Map?)?.cast<String, String>(),
-      usualSportsOrInterests: (fields[29] as List?)?.cast<String>(),
       pushupCount: fields[30] as int?,
       pullupCount: fields[31] as int?,
-      preferredWorkoutLocations: (fields[32] as List?)?.cast<String>(),
-      dietTypes: (fields[33] as List?)?.cast<String>(),
       sugarIntakeFrequency: fields[34] as String?,
       waterIntake: fields[35] as String?,
       mealPrepTime: fields[36] as String?,
-      pastWorkoutProblems: (fields[37] as List?)?.cast<String>(),
-      additionalWellnessGoals: (fields[38] as List?)?.cast<String>(),
-      healthConditionsOrInjuries: (fields[39] as List?)?.cast<String>(),
       lastUpdated: fields[40] as DateTime?,
-    );
+    )
+      ..medicationsStr = fields[13] as String?
+      ..availableIngredientsStr = fields[14] as String?
+      ..fitnessGoalsStr = fields[19] as String?
+      ..desiredBodyShapesStr = fields[20] as String?
+      ..complexAreasStr = fields[22] as String?
+      ..usualSportsOrInterestsStr = fields[29] as String?
+      ..preferredWorkoutLocationsStr = fields[32] as String?
+      ..dietTypesStr = fields[33] as String?
+      ..pastWorkoutProblemsStr = fields[37] as String?
+      ..additionalWellnessGoalsStr = fields[38] as String?
+      ..healthConditionsOrInjuriesStr = fields[39] as String?;
   }
 
   @override
@@ -97,9 +97,9 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(12)
       ..write(obj.sleepHabits)
       ..writeByte(13)
-      ..write(obj.medications)
+      ..write(obj.medicationsStr)
       ..writeByte(14)
-      ..write(obj.availableIngredients)
+      ..write(obj.availableIngredientsStr)
       ..writeByte(15)
       ..write(obj.activityLevel)
       ..writeByte(16)
@@ -109,13 +109,13 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(18)
       ..write(obj.dietaryType)
       ..writeByte(19)
-      ..write(obj.fitnessGoals)
+      ..write(obj.fitnessGoalsStr)
       ..writeByte(20)
-      ..write(obj.desiredBodyShapes)
+      ..write(obj.desiredBodyShapesStr)
       ..writeByte(21)
       ..write(obj.currentBodyType)
       ..writeByte(22)
-      ..write(obj.complexAreas)
+      ..write(obj.complexAreasStr)
       ..writeByte(23)
       ..write(obj.hasSpecificGoalEvent)
       ..writeByte(24)
@@ -129,15 +129,15 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(28)
       ..write(obj.workoutPreferences)
       ..writeByte(29)
-      ..write(obj.usualSportsOrInterests)
+      ..write(obj.usualSportsOrInterestsStr)
       ..writeByte(30)
       ..write(obj.pushupCount)
       ..writeByte(31)
       ..write(obj.pullupCount)
       ..writeByte(32)
-      ..write(obj.preferredWorkoutLocations)
+      ..write(obj.preferredWorkoutLocationsStr)
       ..writeByte(33)
-      ..write(obj.dietTypes)
+      ..write(obj.dietTypesStr)
       ..writeByte(34)
       ..write(obj.sugarIntakeFrequency)
       ..writeByte(35)
@@ -145,11 +145,11 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(36)
       ..write(obj.mealPrepTime)
       ..writeByte(37)
-      ..write(obj.pastWorkoutProblems)
+      ..write(obj.pastWorkoutProblemsStr)
       ..writeByte(38)
-      ..write(obj.additionalWellnessGoals)
+      ..write(obj.additionalWellnessGoalsStr)
       ..writeByte(39)
-      ..write(obj.healthConditionsOrInjuries)
+      ..write(obj.healthConditionsOrInjuriesStr)
       ..writeByte(40)
       ..write(obj.lastUpdated)
       ..writeByte(41)

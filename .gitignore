@@ -13,6 +13,9 @@ ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 *.lock
 *.log
+*.json
+*.csv
+*.ipynb
 
 # Android
 android/.gradle/

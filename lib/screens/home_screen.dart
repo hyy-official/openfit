@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 menuItem(t?.menuChat ?? "채팅", onTap: () async {
                   final box = Hive.box<UserProfile>('userProfileBox');
                   final profile = box.get('userProfile');
+                  //여기까진 문제 없음
                   if (!isProfileValid(profile)) {
                     setState(() {
                       selectedView = HomeContentView.userSettings;

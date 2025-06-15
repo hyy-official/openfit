@@ -46,10 +46,10 @@ class UserProfile extends HiveObject {
   String? sleepHabits;  // 수면 습관
 
   @HiveField(13)
-  List<String> medications;
+  String? medicationsStr;
 
   @HiveField(14)
-  List<String> availableIngredients;
+  String? availableIngredientsStr;
 
   @HiveField(15)
   String? activityLevel;  // 활동 수준
@@ -64,16 +64,16 @@ class UserProfile extends HiveObject {
   String? dietaryType;
 
   @HiveField(19)
-  List<String> fitnessGoals;
+  String? fitnessGoalsStr;
 
   @HiveField(20)
-  List<String> desiredBodyShapes;
+  String? desiredBodyShapesStr;
 
   @HiveField(21)
   String? currentBodyType; // 현재 체형
 
   @HiveField(22)
-  List<String> complexAreas;
+  String? complexAreasStr;
 
   @HiveField(23)
   bool? hasSpecificGoalEvent; // 특정 목표 여부 (예: 결혼식, 바디프로필)
@@ -94,7 +94,7 @@ class UserProfile extends HiveObject {
   Map<String, String>? workoutPreferences; // 운동 취향 (유형별 선호도)
 
   @HiveField(29)
-  List<String> usualSportsOrInterests;
+  String? usualSportsOrInterestsStr;
 
   @HiveField(30)
   int? pushupCount; // 푸쉬업 가능 개수
@@ -103,10 +103,10 @@ class UserProfile extends HiveObject {
   int? pullupCount; // 턱걸이(풀업) 가능 개수 (선택 사항)
 
   @HiveField(32)
-  List<String> preferredWorkoutLocations;
+  String? preferredWorkoutLocationsStr;
 
   @HiveField(33)
-  List<String> dietTypes;
+  String? dietTypesStr;
 
   @HiveField(34)
   String? sugarIntakeFrequency; // 설탕이 들어간 음식/음료 섭취 빈도
@@ -118,13 +118,13 @@ class UserProfile extends HiveObject {
   String? mealPrepTime; // 식사 준비에 할애할 수 있는 시간
 
   @HiveField(37)
-  List<String> pastWorkoutProblems;
+  String? pastWorkoutProblemsStr;
 
   @HiveField(38)
-  List<String> additionalWellnessGoals;
+  String? additionalWellnessGoalsStr;
 
   @HiveField(39)
-  List<String> healthConditionsOrInjuries;
+  String? healthConditionsOrInjuriesStr;
 
   @HiveField(40)
   DateTime? lastUpdated;
@@ -191,19 +191,19 @@ class UserProfile extends HiveObject {
     List<String>? additionalWellnessGoals,
     List<String>? healthConditionsOrInjuries,
     this.lastUpdated,
-  }) : 
-    // List 필드들 기본값 설정
-    medications = medications ?? <String>[],
-    availableIngredients = availableIngredients ?? <String>[],
-    fitnessGoals = fitnessGoals ?? <String>[],
-    desiredBodyShapes = desiredBodyShapes ?? <String>[],
-    complexAreas = complexAreas ?? <String>[],
-    usualSportsOrInterests = usualSportsOrInterests ?? <String>[],
-    preferredWorkoutLocations = preferredWorkoutLocations ?? <String>[],
-    dietTypes = dietTypes ?? <String>[],
-    pastWorkoutProblems = pastWorkoutProblems ?? <String>[],
-    additionalWellnessGoals = additionalWellnessGoals ?? <String>[],
-    healthConditionsOrInjuries = healthConditionsOrInjuries ?? <String>[] {
+  }) {
+    // 🔥 List를 String으로 변환하여 저장
+    this.medicationsStr = _listToString(medications);
+    this.availableIngredientsStr = _listToString(availableIngredients);
+    this.fitnessGoalsStr = _listToString(fitnessGoals);
+    this.desiredBodyShapesStr = _listToString(desiredBodyShapes);
+    this.complexAreasStr = _listToString(complexAreas);
+    this.usualSportsOrInterestsStr = _listToString(usualSportsOrInterests);
+    this.preferredWorkoutLocationsStr = _listToString(preferredWorkoutLocations);
+    this.dietTypesStr = _listToString(dietTypes);
+    this.pastWorkoutProblemsStr = _listToString(pastWorkoutProblems);
+    this.additionalWellnessGoalsStr = _listToString(additionalWellnessGoals);
+    this.healthConditionsOrInjuriesStr = _listToString(healthConditionsOrInjuries);
     
     // 드롭다운 관련 필드 안전 보정
     const fitnessLevelOptions = ['초급 (일상생활 어려움)', '초보자 (가끔 운동 시도)', '고급 (꾸준히 고강도 운동 가능)'];
@@ -422,181 +422,106 @@ class UserProfile extends HiveObject {
 
   static void registerAdapters() {
     Hive.registerAdapter(UserProfileAdapter());
-    Hive.registerAdapter(MedicationsAdapter());
-    Hive.registerAdapter(AvailableIngredientsAdapter());
-    Hive.registerAdapter(FitnessGoalsAdapter());
-    Hive.registerAdapter(DesiredBodyShapesAdapter());
-    Hive.registerAdapter(ComplexAreasAdapter());
-    Hive.registerAdapter(UsualSportsOrInterestsAdapter());
-    Hive.registerAdapter(PreferredWorkoutLocationsAdapter());
-    Hive.registerAdapter(DietTypesAdapter());
-    Hive.registerAdapter(PastWorkoutProblemsAdapter());
-    Hive.registerAdapter(AdditionalWellnessGoalsAdapter());
-    Hive.registerAdapter(HealthConditionsOrInjuriesAdapter());
-  }
-}
-
-class MedicationsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 101;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
   }
 
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class AvailableIngredientsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 102;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class FitnessGoalsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 103;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class DesiredBodyShapesAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 104;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class ComplexAreasAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 105;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'gender': gender,
+      'weight': weight,
+      'bodyFat': bodyFat,
+      'dietHabit': dietHabit,
+      'goal': goal,
+      'gptKey': gptKey,
+      'age': age,
+      'height': height,
+      'targetWeight': targetWeight,
+      'targetBodyFat': targetBodyFat,
+      'targetMuscleMass': targetMuscleMass,
+      'currentMuscleMass': currentMuscleMass,
+      'lastBodyFatMeasurement': lastBodyFatMeasurement?.toIso8601String(),
+      'lastMuscleMassMeasurement': lastMuscleMassMeasurement?.toIso8601String(),
+      'bodyFatMeasurementMethod': bodyFatMeasurementMethod,
+      'muscleMassMeasurementMethod': muscleMassMeasurementMethod,
+      'sleepHabits': sleepHabits,
+      'medications': medications,
+      'availableIngredients': availableIngredients,
+      'activityLevel': activityLevel,
+      'availableWorkoutTime': availableWorkoutTime,
+      'dietaryRestrictions': dietaryRestrictions,
+      'dietaryType': dietaryType,
+      'fitnessGoals': fitnessGoals,
+      'desiredBodyShapes': desiredBodyShapes,
+      'currentBodyType': currentBodyType,
+      'complexAreas': complexAreas,
+      'hasSpecificGoalEvent': hasSpecificGoalEvent,
+      'specificGoalEventDetails': specificGoalEventDetails,
+      'fitnessLevel': fitnessLevel,
+      'weeklyWorkoutFrequency': weeklyWorkoutFrequency,
+      'desiredWorkoutDuration': desiredWorkoutDuration,
+      'workoutPreferences': workoutPreferences,
+      'usualSportsOrInterests': usualSportsOrInterests,
+      'pushupCount': pushupCount,
+      'pullupCount': pullupCount,
+      'preferredWorkoutLocations': preferredWorkoutLocations,
+      'dietTypes': dietTypes,
+      'sugarIntakeFrequency': sugarIntakeFrequency,
+      'waterIntake': waterIntake,
+      'mealPrepTime': mealPrepTime,
+      'pastWorkoutProblems': pastWorkoutProblems,
+      'additionalWellnessGoals': additionalWellnessGoals,
+      'healthConditionsOrInjuries': healthConditionsOrInjuries,
+      'lastUpdated': lastUpdated?.toIso8601String(),
+    };
   }
 
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
+  // === 헬퍼 메서드들 ===
+  
+  // 구분자 상수
+  static const String _separator = '|||';
+  
+  // String ↔ List 변환 헬퍼
+  static String _listToString(List<String>? items) {
+    if (items == null || items.isEmpty) return '';
+    return items.join(_separator);
   }
-}
-
-class UsualSportsOrInterestsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 106;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
+  
+  static List<String> _stringToList(String? str) {
+    if (str == null || str.isEmpty) return [];
+    return str.split(_separator);
   }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class PreferredWorkoutLocationsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 107;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class DietTypesAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 108;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class PastWorkoutProblemsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 109;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class AdditionalWellnessGoalsAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 110;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
-}
-
-class HealthConditionsOrInjuriesAdapter extends TypeAdapter<List<String>> {
-  @override
-  final int typeId = 111;
-
-  @override
-  List<String> read(BinaryReader reader) {
-    return List<String>.from(reader.readList());
-  }
-
-  @override
-  void write(BinaryWriter writer, List<String> obj) {
-    writer.writeList(obj);
-  }
+  
+  // Getter/Setter들
+  List<String> get medications => _stringToList(medicationsStr);
+  set medications(List<String> value) => medicationsStr = _listToString(value);
+  
+  List<String> get availableIngredients => _stringToList(availableIngredientsStr);
+  set availableIngredients(List<String> value) => availableIngredientsStr = _listToString(value);
+  
+  List<String> get fitnessGoals => _stringToList(fitnessGoalsStr);
+  set fitnessGoals(List<String> value) => fitnessGoalsStr = _listToString(value);
+  
+  List<String> get desiredBodyShapes => _stringToList(desiredBodyShapesStr);
+  set desiredBodyShapes(List<String> value) => desiredBodyShapesStr = _listToString(value);
+  
+  List<String> get complexAreas => _stringToList(complexAreasStr);
+  set complexAreas(List<String> value) => complexAreasStr = _listToString(value);
+  
+  List<String> get usualSportsOrInterests => _stringToList(usualSportsOrInterestsStr);
+  set usualSportsOrInterests(List<String> value) => usualSportsOrInterestsStr = _listToString(value);
+  
+  List<String> get preferredWorkoutLocations => _stringToList(preferredWorkoutLocationsStr);
+  set preferredWorkoutLocations(List<String> value) => preferredWorkoutLocationsStr = _listToString(value);
+  
+  List<String> get dietTypes => _stringToList(dietTypesStr);
+  set dietTypes(List<String> value) => dietTypesStr = _listToString(value);
+  
+  List<String> get pastWorkoutProblems => _stringToList(pastWorkoutProblemsStr);
+  set pastWorkoutProblems(List<String> value) => pastWorkoutProblemsStr = _listToString(value);
+  
+  List<String> get additionalWellnessGoals => _stringToList(additionalWellnessGoalsStr);
+  set additionalWellnessGoals(List<String> value) => additionalWellnessGoalsStr = _listToString(value);
+  
+  List<String> get healthConditionsOrInjuries => _stringToList(healthConditionsOrInjuriesStr);
+  set healthConditionsOrInjuries(List<String> value) => healthConditionsOrInjuriesStr = _listToString(value);
 }

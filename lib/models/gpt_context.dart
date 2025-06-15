@@ -30,10 +30,10 @@ class GPTContext extends HiveObject {
   String? sleepHabits;
 
   @HiveField(8)
-  List<String>? medications;
+  String? medicationsStr;
 
   @HiveField(9)
-  List<String>? availableIngredients;
+  String? availableIngredientsStr;
 
   @HiveField(10)
   String? activityLevel;
@@ -47,6 +47,27 @@ class GPTContext extends HiveObject {
   @HiveField(13)
   String? historySummary;
 
+  @HiveField(14)
+  String? fitnessGoalsStr;
+
+  @HiveField(15)
+  String? desiredBodyShapesStr;
+
+  @HiveField(16)
+  String? complexAreasStr;
+
+  @HiveField(17)
+  Map<String, String>? workoutPreferences;
+
+  @HiveField(18)
+  String? fitnessLevel;
+
+  @HiveField(19)
+  String? weeklyWorkoutFrequency;
+
+  @HiveField(20)
+  String? currentBodyType;
+
   GPTContext({
     required this.userId,
     this.conversationId,
@@ -56,13 +77,26 @@ class GPTContext extends HiveObject {
     this.targetMuscleMass,
     this.currentMuscleMass,
     this.sleepHabits,
-    this.medications,
-    this.availableIngredients,
+    List<String>? medications,
+    List<String>? availableIngredients,
     this.activityLevel,
     this.availableWorkoutTime,
     this.dietaryRestrictions,
     this.historySummary,
-  });
+    List<String>? fitnessGoals,
+    List<String>? desiredBodyShapes,
+    List<String>? complexAreas,
+    this.workoutPreferences,
+    this.fitnessLevel,
+    this.weeklyWorkoutFrequency,
+    this.currentBodyType,
+  }) {
+    this.medicationsStr = medications != null ? _listToString(medications) : null;
+    this.availableIngredientsStr = availableIngredients != null ? _listToString(availableIngredients) : null;
+    this.fitnessGoalsStr = fitnessGoals != null ? _listToString(fitnessGoals) : null;
+    this.desiredBodyShapesStr = desiredBodyShapes != null ? _listToString(desiredBodyShapes) : null;
+    this.complexAreasStr = complexAreas != null ? _listToString(complexAreas) : null;
+  }
 
   GPTContext copyWith({
     String? userId,
@@ -79,6 +113,13 @@ class GPTContext extends HiveObject {
     String? availableWorkoutTime,
     String? dietaryRestrictions,
     String? historySummary,
+    List<String>? fitnessGoals,
+    List<String>? desiredBodyShapes,
+    List<String>? complexAreas,
+    Map<String, String>? workoutPreferences,
+    String? fitnessLevel,
+    String? weeklyWorkoutFrequency,
+    String? currentBodyType,
   }) {
     return GPTContext(
       userId: userId ?? this.userId,
@@ -95,6 +136,13 @@ class GPTContext extends HiveObject {
       availableWorkoutTime: availableWorkoutTime ?? this.availableWorkoutTime,
       dietaryRestrictions: dietaryRestrictions ?? this.dietaryRestrictions,
       historySummary: historySummary ?? this.historySummary,
+      fitnessGoals: fitnessGoals ?? this.fitnessGoals,
+      desiredBodyShapes: desiredBodyShapes ?? this.desiredBodyShapes,
+      complexAreas: complexAreas ?? this.complexAreas,
+      workoutPreferences: workoutPreferences ?? this.workoutPreferences,
+      fitnessLevel: fitnessLevel ?? this.fitnessLevel,
+      weeklyWorkoutFrequency: weeklyWorkoutFrequency ?? this.weeklyWorkoutFrequency,
+      currentBodyType: currentBodyType ?? this.currentBodyType,
     );
   }
 
@@ -107,6 +155,13 @@ class GPTContext extends HiveObject {
       targetBodyFat: profile.targetBodyFat,
       targetMuscleMass: profile.targetMuscleMass,
       currentMuscleMass: profile.currentMuscleMass,
+      fitnessGoals: profile.fitnessGoals,
+      desiredBodyShapes: profile.desiredBodyShapes,
+      complexAreas: profile.complexAreas,
+      workoutPreferences: profile.workoutPreferences,
+      fitnessLevel: profile.fitnessLevel,
+      weeklyWorkoutFrequency: profile.weeklyWorkoutFrequency,
+      currentBodyType: profile.currentBodyType,
     );
   }
 
@@ -126,6 +181,13 @@ class GPTContext extends HiveObject {
       'availableWorkoutTime': availableWorkoutTime,
       'dietaryRestrictions': dietaryRestrictions,
       'historySummary': historySummary,
+      'fitnessGoals': fitnessGoals,
+      'desiredBodyShapes': desiredBodyShapes,
+      'complexAreas': complexAreas,
+      'workoutPreferences': workoutPreferences,
+      'fitnessLevel': fitnessLevel,
+      'weeklyWorkoutFrequency': weeklyWorkoutFrequency,
+      'currentBodyType': currentBodyType,
     };
   }
 
@@ -145,6 +207,13 @@ class GPTContext extends HiveObject {
       availableWorkoutTime: json['availableWorkoutTime'] as String?,
       dietaryRestrictions: json['dietaryRestrictions'] as String?,
       historySummary: json['historySummary'] as String?,
+      fitnessGoals: (json['fitnessGoals'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      desiredBodyShapes: (json['desiredBodyShapes'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      complexAreas: (json['complexAreas'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      workoutPreferences: (json['workoutPreferences'] as Map<dynamic, dynamic>?)?.map((k, v) => MapEntry(k as String, v as String)),
+      fitnessLevel: json['fitnessLevel'] as String?,
+      weeklyWorkoutFrequency: json['weeklyWorkoutFrequency'] as String?,
+      currentBodyType: json['currentBodyType'] as String?,
     );
   }
 
@@ -184,10 +253,68 @@ class GPTContext extends HiveObject {
     if (dietaryRestrictions != null) {
       buffer.writeln('식이 제한: $dietaryRestrictions');
     }
+    
+    if (fitnessGoals != null && fitnessGoals!.isNotEmpty) {
+      buffer.writeln('운동 목표: ${fitnessGoals!.join(', ')}');
+    }
+    if (desiredBodyShapes != null && desiredBodyShapes!.isNotEmpty) {
+      buffer.writeln('원하는 몸매: ${desiredBodyShapes!.join(', ')}');
+    }
+    if (complexAreas != null && complexAreas!.isNotEmpty) {
+      buffer.writeln('컴플렉스 부위: ${complexAreas!.join(', ')}');
+    }
+    if (workoutPreferences != null && workoutPreferences!.isNotEmpty) {
+      buffer.writeln('운동 취향:');
+      workoutPreferences!.forEach((type, preference) {
+        buffer.writeln('  $type: $preference');
+      });
+    }
+    if (fitnessLevel != null) {
+      buffer.writeln('체력 수준: $fitnessLevel');
+    }
+    if (weeklyWorkoutFrequency != null) {
+      buffer.writeln('주간 운동 빈도: $weeklyWorkoutFrequency');
+    }
+    if (currentBodyType != null) {
+      buffer.writeln('현재 체형: $currentBodyType');
+    }
+    
     if (historySummary != null && historySummary!.trim().isNotEmpty) {
       buffer.writeln('\n대화 히스토리 요약:\n$historySummary');
     }
 
     return buffer.toString();
   }
+
+  // === 헬퍼 메서드들 ===
+  
+  // 구분자 상수
+  static const String _separator = '|||';
+  
+  // String ↔ List 변환 헬퍼
+  static String _listToString(List<String>? items) {
+    if (items == null || items.isEmpty) return '';
+    return items.join(_separator);
+  }
+  
+  static List<String> _stringToList(String? str) {
+    if (str == null || str.isEmpty) return [];
+    return str.split(_separator);
+  }
+  
+  // Getter/Setter들
+  List<String>? get medications => medicationsStr != null ? _stringToList(medicationsStr) : null;
+  set medications(List<String>? value) => medicationsStr = value != null ? _listToString(value) : null;
+  
+  List<String>? get availableIngredients => availableIngredientsStr != null ? _stringToList(availableIngredientsStr) : null;
+  set availableIngredients(List<String>? value) => availableIngredientsStr = value != null ? _listToString(value) : null;
+  
+  List<String>? get fitnessGoals => fitnessGoalsStr != null ? _stringToList(fitnessGoalsStr) : null;
+  set fitnessGoals(List<String>? value) => fitnessGoalsStr = value != null ? _listToString(value) : null;
+  
+  List<String>? get desiredBodyShapes => desiredBodyShapesStr != null ? _stringToList(desiredBodyShapesStr) : null;
+  set desiredBodyShapes(List<String>? value) => desiredBodyShapesStr = value != null ? _listToString(value) : null;
+  
+  List<String>? get complexAreas => complexAreasStr != null ? _stringToList(complexAreasStr) : null;
+  set complexAreas(List<String>? value) => complexAreasStr = value != null ? _listToString(value) : null;
 } 

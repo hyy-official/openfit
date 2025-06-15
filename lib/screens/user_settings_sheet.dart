@@ -4,6 +4,8 @@ import 'package:hive/hive.dart';
 import 'package:openfit/models/user_profile.dart'; // UserProfile 모델 임포트
 import 'package:openfit/models/gpt_context.dart'; // GPTContext 모델 임포트
 import 'package:openfit/screens/home_screen.dart';
+import 'package:openfit/services/profile_service.dart'; // 🔥 ProfileService 임포트
+import 'package:provider/provider.dart';
 
 class UserSettingsSheet extends StatefulWidget {
   const UserSettingsSheet({super.key});
@@ -281,7 +283,6 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
       print('🔍 저장 시작 - 원하는 몸매: $_desiredBodyShapes');
       print('🔍 저장 시작 - 운동 취향: $_workoutPreferences');
       
-      final box = Hive.box<UserProfile>('userProfileBox');
       final profile = UserProfile(
         name: _nameController.text,
         gptKey: _keyController.text,
@@ -321,35 +322,12 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
         muscleMassMeasurementMethod: _muscleMassMeasurementMethodController.text,
       );
 
-      await box.put('userProfile', profile);
+      debugPrint('🔍 저장 확인: ${profile.toPrompt()}');
+      // 🔥 Provider에서 ProfileService 가져와서 저장 및 동기화
+      final profileService = Provider.of<ProfileService>(context, listen: false);
+      await profileService.saveUserProfile(profile);
       
-      // 저장 후 확인
-      print('✅ 저장 완료 - 프로필 운동 목표: ${profile.fitnessGoals}');
-      print('✅ 저장 완료 - 프로필 원하는 몸매: ${profile.desiredBodyShapes}');
-      print('✅ 저장 완료 - 프로필 운동 취향: ${profile.workoutPreferences}');
-
-      // GPTContext 업데이트
-      final gptContextBox = Hive.box<GPTContext>('gptContextBox');
-      final gptContext = gptContextBox.get('userProfile');
-      
-      if (gptContext != null) {
-        final updatedContext = gptContext.copyWith(
-          weight: profile.weight,
-          bodyFat: profile.bodyFat,
-          targetBodyFat: profile.targetBodyFat,
-          targetMuscleMass: profile.targetMuscleMass,
-          sleepHabits: profile.sleepHabits,
-          medications: profile.medications,
-          availableIngredients: profile.availableIngredients,
-          activityLevel: profile.activityLevel,
-          availableWorkoutTime: profile.availableWorkoutTime,
-          dietaryRestrictions: profile.dietaryRestrictions,
-        );
-        await gptContextBox.put('userProfile', updatedContext);
-      } else {
-        final newContext = GPTContext.fromUserProfile('user', profile);
-        await gptContextBox.put('userProfile', newContext);
-      }
+      print('✅ ProfileService를 통한 저장 및 동기화 완료');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
