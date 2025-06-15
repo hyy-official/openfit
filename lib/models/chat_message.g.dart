@@ -19,17 +19,20 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
     return ChatMessage(
       role: fields[0] as String,
       content: fields[1] as String,
+      timestamp: fields[2] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatMessage obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.role)
       ..writeByte(1)
-      ..write(obj.content);
+      ..write(obj.content)
+      ..writeByte(2)
+      ..write(obj.timestamp);
   }
 
   @override

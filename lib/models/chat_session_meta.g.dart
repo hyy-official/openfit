@@ -17,21 +17,18 @@ class ChatSessionMetaAdapter extends TypeAdapter<ChatSessionMeta> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ChatSessionMeta(
-      sessionId: fields[0] as String,
-      lastMessage: fields[1] as String,
-      updatedAt: fields[2] as DateTime,
+      id: fields[0] as String,
+      updatedAt: fields[1] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChatSessionMeta obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.sessionId)
-      ..writeByte(1)
-      ..write(obj.lastMessage)
       ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
       ..write(obj.updatedAt);
   }
 

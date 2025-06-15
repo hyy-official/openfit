@@ -1,13 +1,16 @@
-// home_screen.dart (사이드바 유지 + 본문 전환 방식 적용)
+// home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:openfit/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:openfit/screens/chat_screen.dart';
 import 'package:openfit/screens/calendar_screen.dart';
-import 'package:openfit/screens/user_settings_sheet.dart';
+import 'package:openfit/screens/user_settings_sheet.dart'; // Make sure this import is correct
+import 'package:openfit/models/user_profile.dart';
+import 'package:hive/hive.dart';
 
-enum HomeContentView { dashboard, calendar }
+// Add userSettings to your enum
+enum HomeContentView { dashboard, calendar, userSettings }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
+    final t = AppLocalizations.of(context);
     final userName = "홍윤영";
     final todayDate = DateFormat.yMMMMd(Localizations.localeOf(context).toString()).format(DateTime.now());
 
@@ -29,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.black,
       body: Row(
         children: [
-          // 좌측 고정 네비게이션
+          // Left Fixed Navigation
           Container(
             width: 250,
             padding: const EdgeInsets.all(24),
@@ -37,17 +40,40 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.explore, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text(t?.explore ?? "탐색", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
-                menuItem(t.menuFitness),
-                menuItem(t.menuNutrition),
-                menuItem(t.menuWeight, onTap: () {
+                menuItem(t?.menuFitness ?? "피트니스"),
+                menuItem(t?.menuNutrition ?? "영양"),
+                menuItem(t?.menuCalender ?? "캘린더", onTap: () async {
+                  final box = Hive.box<UserProfile>('userProfileBox');
+                  final profile = box.get('userProfile');
+                  if (!isProfileValid(profile)) {
+                    setState(() {
+                      selectedView = HomeContentView.userSettings;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('먼저 유저 프로필(이름, 나이, 키, 체중, 목표체중)을 모두 입력해주세요!')),
+                    );
+                    return;
+                  }
                   setState(() {
                     selectedView = HomeContentView.calendar;
                   });
                 }),
-                menuItem(t.menuChat, onTap: () {
-                  final sessionId = 'session_\${DateTime.now().millisecondsSinceEpoch}';
+                menuItem(t?.menuChat ?? "채팅", onTap: () async {
+                  final box = Hive.box<UserProfile>('userProfileBox');
+                  final profile = box.get('userProfile');
+                  if (!isProfileValid(profile)) {
+                    setState(() {
+                      selectedView = HomeContentView.userSettings;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('먼저 유저 프로필(이름, 나이, 키, 체중, 목표체중)을 모두 입력해주세요!')),
+                    );
+                    return;
+                  }
+                  final sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
+                  // 홈스크린에서 새 채팅 시작 시만 커스텀 애니메이션 적용
                   Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) => ChatScreen(sessionId: sessionId),
@@ -61,14 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }),
-                menuItem(t.personal, onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => Dialog(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: const UserSettingsSheet(),
-                    ),
-                  );
+                menuItem(t?.personal ?? "개인설정", onTap: () {
+                  setState(() {
+                    selectedView = HomeContentView.userSettings;
+                  });
                 }),
                 const Spacer(),
                 ElevatedButton(
@@ -80,13 +102,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const VerticalDivider(width: 1),
 
-          // 우측 콘텐츠 영역 (상태에 따라 달라짐)
+          // Right Content Area (changes based on state)
           Expanded(
             child: Builder(
               builder: (_) {
                 switch (selectedView) {
                   case HomeContentView.calendar:
                     return const CalendarScreen();
+                  case HomeContentView.userSettings: // New case for UserSettingsSheet
+                    return const UserSettingsSheet();
                   case HomeContentView.dashboard:
                   default:
                     return const Center(
@@ -106,5 +130,16 @@ class _HomeScreenState extends State<HomeScreen> {
       title: Text(title, style: const TextStyle(fontSize: 16)),
       onTap: onTap,
     );
+  }
+
+  // 유저 프로필 필수 입력값 체크 함수
+  bool isProfileValid(UserProfile? profile) {
+    if (profile == null) return false;
+    if (profile.name == null || profile.name!.isEmpty) return false;
+    if (profile.age == null || profile.age == 0) return false;
+    if (profile.height == null || profile.height == 0) return false;
+    if (profile.weight == null || profile.weight == 0) return false;
+    if (profile.targetWeight == null || profile.targetWeight == 0) return false;
+    return true;
   }
 }

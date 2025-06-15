@@ -18,7 +18,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get menuNutrition => '영양';
 
   @override
-  String get menuWeight => '체중 관리';
+  String get menuCalender => '달력';
 
   @override
   String get menuChat => '채팅 시작';

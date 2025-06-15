@@ -116,11 +116,11 @@ abstract class AppLocalizations {
   /// **'Nutrition'**
   String get menuNutrition;
 
-  /// No description provided for @menuWeight.
+  /// No description provided for @menuCalender.
   ///
   /// In en, this message translates to:
-  /// **'Weight Management'**
-  String get menuWeight;
+  /// **'Calender'**
+  String get menuCalender;
 
   /// No description provided for @menuChat.
   ///

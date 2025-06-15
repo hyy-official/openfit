@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuNutrition => 'Nutrition';
 
   @override
-  String get menuWeight => 'Weight Management';
+  String get menuCalender => 'Calender';
 
   @override
   String get menuChat => 'Start Chat';

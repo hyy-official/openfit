@@ -8,7 +8,7 @@ part of 'daily_plan.dart';
 
 class DailyPlanAdapter extends TypeAdapter<DailyPlan> {
   @override
-  final int typeId = 4;
+  final int typeId = 2;
 
   @override
   DailyPlan read(BinaryReader reader) {
@@ -20,15 +20,18 @@ class DailyPlanAdapter extends TypeAdapter<DailyPlan> {
       date: fields[0] as String,
       mealPlan: (fields[1] as List).cast<String>(),
       workoutPlan: (fields[2] as List).cast<String>(),
-      mealDone: (fields[3] as List?)?.cast<bool>(),
-      workoutDone: (fields[4] as List?)?.cast<bool>(),
+      mealDone: (fields[3] as List).cast<bool>(),
+      workoutDone: (fields[4] as List).cast<bool>(),
+      mealCalories: (fields[5] as List).cast<double>(),
+      workoutCalories: (fields[6] as List).cast<double>(),
+      notes: fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, DailyPlan obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -38,7 +41,13 @@ class DailyPlanAdapter extends TypeAdapter<DailyPlan> {
       ..writeByte(3)
       ..write(obj.mealDone)
       ..writeByte(4)
-      ..write(obj.workoutDone);
+      ..write(obj.workoutDone)
+      ..writeByte(5)
+      ..write(obj.mealCalories)
+      ..writeByte(6)
+      ..write(obj.workoutCalories)
+      ..writeByte(7)
+      ..write(obj.notes);
   }
 
   @override
